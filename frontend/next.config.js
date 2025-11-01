@@ -1,14 +1,19 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   reactStrictMode: true,
-  // output: 'standalone' is for Docker - remove for Vercel
   // Note: i18n is handled client-side with react-i18next
   images: {
     domains: [],
   },
-  // Enable serverless functions for API routes
-  experimental: {
-    serverActions: true,
+  // Path aliases
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, 'src'),
+    };
+    return config;
   },
 }
 
