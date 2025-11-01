@@ -1,0 +1,26 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["bom1"],
+  "env": {
+    "MONGO_URI": "@mongo_uri",
+    "REDIS_URL": "@redis_url",
+    "DATA_GOV_API_KEY": "@data_gov_api_key",
+    "ADMIN_TOKEN": "@admin_token",
+    "STATE_CODE": "@state_code"
+  },
+  "functions": {
+    "src/app/api/**/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/v1/:path*",
+      "destination": "/api/v1/:path*"
+    }
+  ]
+}
+

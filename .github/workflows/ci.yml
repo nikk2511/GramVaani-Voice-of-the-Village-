@@ -1,0 +1,89 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm install
+        cd frontend && npm install
+        cd ../backend && npm install
+        cd ../worker && npm install
+    
+    - name: Run backend tests
+      run: cd backend && npm test
+      env:
+        NODE_ENV: test
+    
+    - name: Run frontend tests
+      run: cd frontend && npm test
+      env:
+        CI: true
+    
+    - name: Lint
+      run: |
+        cd backend && npm run lint || true
+        cd ../frontend && npm run lint || true
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build Docker images
+      run: |
+        docker-compose build
+    
+    - name: Test Docker images
+      run: |
+        docker-compose up -d
+        sleep 10
+        docker-compose ps
+        docker-compose down
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        script: |
+          cd /path/to/app
+          git pull origin main
+          docker-compose build
+          docker-compose up -d
+          docker-compose exec -T mongo mongodump --archive=/backup/mongo-$(date +%Y%m%d).archive || true
+
