@@ -3,6 +3,8 @@ import connectDB from '@/lib/db';
 import { getRedisClient } from '@/lib/redis';
 import getDistrictModel from '@/lib/models/District';
 
+export const dynamic = 'force-dynamic';
+
 const cacheKey = (key) => `mgnrega:${key}`;
 const CACHE_TTL = 3600; // 1 hour
 

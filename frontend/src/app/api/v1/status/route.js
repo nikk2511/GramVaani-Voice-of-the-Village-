@@ -4,6 +4,8 @@ import { getRedisClient } from '@/lib/redis';
 import mongoose from 'mongoose';
 import getRawSnapshotModel from '@/lib/models/RawSnapshot';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     let mongoStatus = 'disconnected';
