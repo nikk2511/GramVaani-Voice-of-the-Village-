@@ -21,14 +21,38 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
     
-    - name: Install dependencies
+    - name: Install root dependencies
+      run: npm install
+      working-directory: .
+      continue-on-error: true
+    
+    - name: Install frontend dependencies
       run: |
-        npm install
-        cd frontend && npm install
-        cd ../backend && npm install
-        cd ../worker && npm install
+        if [ -f package-lock.json ]; then
+          npm ci
+        else
+          npm install
+        fi
+      working-directory: ./frontend
+    
+    - name: Install backend dependencies
+      run: |
+        if [ -f package-lock.json ]; then
+          npm ci
+        else
+          npm install
+        fi
+      working-directory: ./backend
+    
+    - name: Install worker dependencies
+      run: |
+        if [ -f package-lock.json ]; then
+          npm ci
+        else
+          npm install
+        fi
+      working-directory: ./worker
     
     - name: Run backend tests
       run: cd backend && npm test
