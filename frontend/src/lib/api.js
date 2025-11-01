@@ -2,18 +2,20 @@ import axios from 'axios';
 
 // Use relative URL in browser, or environment variable if set
 const getAPIUrl = () => {
-  // If NEXT_PUBLIC_API_URL is set, use it
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
-  }
-  
-  // In browser, always use relative URL
+  // In browser, always use relative URL (works for both local and production)
   if (typeof window !== 'undefined') {
+    // Only use NEXT_PUBLIC_API_URL if it's set AND it's a production URL (Vercel)
+    // Otherwise use relative URL which works everywhere
+    const publicUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (publicUrl && (publicUrl.includes('vercel.app') || publicUrl.includes('https://'))) {
+      return publicUrl;
+    }
+    // Always prefer relative URL in browser - works for local dev and production
     return '/api/v1';
   }
   
-  // Server-side fallback
-  return 'http://localhost:3000/api/v1';
+  // Server-side: use environment variable if set, otherwise localhost
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 };
 
 const api = axios.create({
