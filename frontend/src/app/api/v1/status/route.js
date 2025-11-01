@@ -6,14 +6,25 @@ import getRawSnapshotModel from '@/lib/models/RawSnapshot';
 
 export async function GET() {
   try {
-    await connectDB();
-    
-    // Get model after connection is established
-    const RawSnapshot = getRawSnapshotModel();
-    
-    const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-
+    let mongoStatus = 'disconnected';
     let redisStatus = 'disconnected';
+    let lastSnapshot = null;
+    
+    try {
+      await connectDB();
+      mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+      
+      // Get model after connection is established
+      const RawSnapshot = getRawSnapshotModel();
+      lastSnapshot = await RawSnapshot.findOne({ fetch_status: 'success' })
+        .sort({ fetched_at: -1 })
+        .select('fetched_at state')
+        .lean();
+    } catch (error) {
+      console.error('Database connection error:', error.message);
+      mongoStatus = 'error';
+    }
+
     try {
       const client = await getRedisClient();
       if (client) {
@@ -23,11 +34,6 @@ export async function GET() {
     } catch (error) {
       redisStatus = 'error';
     }
-
-    const lastSnapshot = await RawSnapshot.findOne({ fetch_status: 'success' })
-      .sort({ fetched_at: -1 })
-      .select('fetched_at state')
-      .lean();
 
     const upstreamStatus = {
       status: 'unknown',
@@ -50,7 +56,11 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching status:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        status: 'error',
+        error: 'Internal server error',
+        message: error.message 
+      },
       { status: 500 }
     );
   }
