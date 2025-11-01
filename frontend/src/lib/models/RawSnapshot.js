@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const rawSnapshotSchema = new mongoose.Schema({
   fetched_at: {
@@ -40,6 +40,5 @@ try {
   RawSnapshot = mongoose.model('RawSnapshot', rawSnapshotSchema);
 }
 
-module.exports = RawSnapshot;
 export default RawSnapshot;
 

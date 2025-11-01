@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const districtMetricSchema = new mongoose.Schema({
   district_id: {
@@ -38,6 +38,5 @@ try {
   DistrictMetric = mongoose.model('DistrictMetric', districtMetricSchema);
 }
 
-module.exports = DistrictMetric;
 export default DistrictMetric;
 
