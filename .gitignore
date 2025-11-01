@@ -39,9 +39,6 @@ Thumbs.db
 *.swo
 *~
 
-# Docker
-docker-compose.override.yml
-
 # Redis
 dump.rdb
 
