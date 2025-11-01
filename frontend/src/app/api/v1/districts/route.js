@@ -64,7 +64,11 @@ export async function GET(request) {
         id: d.district_id,
         name_en: d.name_en,
         name_hi: d.name_hi
-      }))
+      })),
+      count: districts.length,
+      message: districts.length === 0 
+        ? 'No districts found. Database may be empty. Use /api/v1/admin/seed-districts?state=UP to load sample districts.'
+        : undefined
     };
 
     await setCached(cacheKeyStr, result);
