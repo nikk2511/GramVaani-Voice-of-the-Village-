@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vercel Deployment Check</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .check { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .pass { background: #d4edda; border: 1px solid #c3e6cb; }
+        .fail { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>Vercel Deployment Status Check</h1>
+    
+    <div class="info check">
+        <strong>Current URL:</strong> <code id="currentUrl"></code>
+    </div>
+
+    <div id="checks"></div>
+
+    <h2>Quick Fix Steps:</h2>
+    <ol>
+        <li>Go to Vercel Dashboard → Your Project → Settings → General</li>
+        <li>Find "Root Directory" setting</li>
+        <li>Set it to: <code>frontend</code> (exactly this, no quotes, no slashes)</li>
+        <li>Click Save</li>
+        <li>Go to Deployments tab → Click "Redeploy"</li>
+        <li>Wait for build to finish</li>
+        <li>Try accessing: <code>/</code> and <code>/api/health</code></li>
+    </ol>
+
+    <script>
+        document.getElementById('currentUrl').textContent = window.location.href;
+        
+        const checks = [];
+        
+        // Check if we're on Vercel
+        const isVercel = window.location.hostname.includes('vercel.app');
+        checks.push({
+            name: 'Hosted on Vercel',
+            status: isVercel ? 'pass' : 'info',
+            message: isVercel ? 'Yes, you are on Vercel' : 'Not on Vercel domain'
+        });
+        
+        // Try to fetch health endpoint
+        fetch('/api/health')
+            .then(res => {
+                checks.push({
+                    name: 'API Health Endpoint',
+                    status: res.ok ? 'pass' : 'fail',
+                    message: res.ok ? 'Working!' : `Failed: ${res.status} ${res.statusText}`
+                });
+                return fetch('/api/v1/status');
+            })
+            .then(res => {
+                checks.push({
+                    name: 'API Status Endpoint',
+                    status: res.ok ? 'pass' : 'fail',
+                    message: res.ok ? 'Working!' : `Failed: ${res.status}`
+                });
+                displayChecks();
+            })
+            .catch(err => {
+                checks.push({
+                    name: 'API Endpoints',
+                    status: 'fail',
+                    message: 'Cannot connect to API. Root Directory likely not set to "frontend"'
+                });
+                displayChecks();
+            });
+        
+        function displayChecks() {
+            const container = document.getElementById('checks');
+            checks.forEach(check => {
+                const div = document.createElement('div');
+                div.className = `check ${check.status}`;
+                div.innerHTML = `<strong>${check.name}:</strong> ${check.message}`;
+                container.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
+
