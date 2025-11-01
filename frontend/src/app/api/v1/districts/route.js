@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import { getRedisClient } from '@/lib/redis';
-import District from '@/lib/models/District';
+import getDistrictModel from '@/lib/models/District';
 
 const cacheKey = (key) => `mgnrega:${key}`;
 const CACHE_TTL = 3600; // 1 hour
@@ -31,6 +31,9 @@ async function setCached(key, data) {
 export async function GET(request) {
   try {
     await connectDB();
+    
+    // Get model after connection is established
+    const District = getDistrictModel();
     
     const { searchParams } = new URL(request.url);
     const state = searchParams.get('state') || process.env.STATE_CODE;

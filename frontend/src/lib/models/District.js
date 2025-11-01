@@ -63,5 +63,5 @@ function getDistrictModel() {
   return District;
 }
 
-export default getDistrictModel();
+export default getDistrictModel;
 

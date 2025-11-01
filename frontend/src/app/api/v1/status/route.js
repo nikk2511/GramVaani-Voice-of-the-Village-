@@ -2,11 +2,14 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import { getRedisClient } from '@/lib/redis';
 import mongoose from 'mongoose';
-import RawSnapshot from '@/lib/models/RawSnapshot';
+import getRawSnapshotModel from '@/lib/models/RawSnapshot';
 
 export async function GET() {
   try {
     await connectDB();
+    
+    // Get model after connection is established
+    const RawSnapshot = getRawSnapshotModel();
     
     const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
 

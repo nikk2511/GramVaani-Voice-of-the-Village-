@@ -51,5 +51,5 @@ function getDistrictMetricModel() {
   return DistrictMetric;
 }
 
-export default getDistrictMetricModel();
+export default getDistrictMetricModel;
 

@@ -53,5 +53,5 @@ function getRawSnapshotModel() {
   return RawSnapshot;
 }
 
-export default getRawSnapshotModel();
+export default getRawSnapshotModel;
 
