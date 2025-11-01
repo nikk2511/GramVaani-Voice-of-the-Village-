@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
-import DistrictMetric from '@/lib/models/DistrictMetric';
-import District from '@/lib/models/District';
+import getDistrictMetricModel from '@/lib/models/DistrictMetric';
+import getDistrictModel from '@/lib/models/District';
 
 export async function GET(request) {
   try {
     await connectDB();
+    
+    // Get models after connection is established
+    const DistrictMetric = getDistrictMetricModel();
+    const District = getDistrictModel();
     
     const { searchParams } = new URL(request.url);
     const district1 = searchParams.get('district1');
