@@ -7,8 +7,10 @@
 2. **Connect to Vercel**:
    - Go to https://vercel.com/new
    - Import your GitHub repository
-   - Set **Root Directory** to `frontend`
-   - Framework: Next.js (auto-detected)
+   - ⚠️ **CRITICAL**: Set **Root Directory** to `frontend` 
+     - This tells Vercel where your `package.json` with Next.js is located
+     - If you skip this, you'll get "No Next.js version detected" error
+   - Framework: Next.js (will auto-detect once Root Directory is set correctly)
 
 3. **Set Environment Variables** in Vercel Dashboard:
    ```
