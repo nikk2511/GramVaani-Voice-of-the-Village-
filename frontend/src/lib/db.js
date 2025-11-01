@@ -2,8 +2,13 @@ import mongoose from 'mongoose';
 
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
 
-if (!MONGO_URI) {
-  throw new Error('Please define the MONGO_URI environment variable');
+// Don't throw during build time - only at runtime
+if (!MONGO_URI && typeof window === 'undefined') {
+  // Only check in server-side context, not during build analysis
+  if (process.env.NODE_ENV !== 'production' || process.env.VERCEL_ENV) {
+    // In build/analysis phase, we might not have env vars
+    // This will be checked at runtime when connectDB is actually called
+  }
 }
 
 /**

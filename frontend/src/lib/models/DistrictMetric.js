@@ -1,42 +1,55 @@
 import mongoose from 'mongoose';
 
-const districtMetricSchema = new mongoose.Schema({
-  district_id: {
-    type: String,
-    required: true,
-    index: true
-  },
-  month: {
-    type: String,
-    required: true,
-    match: /^\d{4}-\d{2}$/
-  },
-  metrics: {
-    people_benefited: { type: Number, default: 0 },
-    expenditure: { type: Number, default: 0 },
-    persondays: { type: Number, default: 0 },
-    works_started: { type: Number, default: 0 },
-    works_completed: { type: Number, default: 0 },
-    average_persondays: { type: Number, default: 0 }
-  },
-  source_snapshot_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'RawSnapshot',
-    default: null
+// Lazy initialization to avoid build-time issues
+let districtMetricSchema = null;
+let DistrictMetric = null;
+
+function getDistrictMetricModel() {
+  if (DistrictMetric) {
+    return DistrictMetric;
   }
-}, {
-  timestamps: true
-});
 
-districtMetricSchema.index({ district_id: 1, month: 1 }, { unique: true });
-districtMetricSchema.index({ district_id: 1, month: -1 });
+  if (!districtMetricSchema) {
+    districtMetricSchema = new mongoose.Schema({
+      district_id: {
+        type: String,
+        required: true,
+        index: true
+      },
+      month: {
+        type: String,
+        required: true,
+        match: /^\d{4}-\d{2}$/
+      },
+      metrics: {
+        people_benefited: { type: Number, default: 0 },
+        expenditure: { type: Number, default: 0 },
+        persondays: { type: Number, default: 0 },
+        works_started: { type: Number, default: 0 },
+        works_completed: { type: Number, default: 0 },
+        average_persondays: { type: Number, default: 0 }
+      },
+      source_snapshot_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'RawSnapshot',
+        default: null
+      }
+    }, {
+      timestamps: true
+    });
 
-let DistrictMetric;
-try {
-  DistrictMetric = mongoose.model('DistrictMetric');
-} catch (e) {
-  DistrictMetric = mongoose.model('DistrictMetric', districtMetricSchema);
+    districtMetricSchema.index({ district_id: 1, month: 1 }, { unique: true });
+    districtMetricSchema.index({ district_id: 1, month: -1 });
+  }
+
+  try {
+    DistrictMetric = mongoose.model('DistrictMetric');
+  } catch (e) {
+    DistrictMetric = mongoose.model('DistrictMetric', districtMetricSchema);
+  }
+
+  return DistrictMetric;
 }
 
-export default DistrictMetric;
+export default getDistrictMetricModel();
 
