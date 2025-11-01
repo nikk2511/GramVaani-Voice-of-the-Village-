@@ -77,10 +77,11 @@ The project has been configured to work with Vercel. The backend Express routes 
    - Go to https://vercel.com/new
    - Import your Git repository
    - Configure:
-     - **Framework Preset**: Next.js
-     - **Root Directory**: `frontend`
-     - **Build Command**: `npm run build`
-     - **Output Directory**: `.next`
+   - **Framework Preset**: Next.js (auto-detect)
+   - **Root Directory**: `frontend` ⚠️ **IMPORTANT: This must be set to `frontend`**
+   - **Build Command**: Leave empty (auto-detected) or `npm run build`
+   - **Output Directory**: Leave empty (auto-detected) or `.next`
+   - **Install Command**: Leave empty (auto-detected) or `npm install`
 
 2. **Set Environment Variables**:
    - Go to Project Settings → Environment Variables
