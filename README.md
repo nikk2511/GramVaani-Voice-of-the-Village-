@@ -1,6 +1,6 @@
 # Our Voice, Our Rights — MGNREGA District Performance Viewer
 
-A production-grade, mobile-first web application that enables citizens to easily understand current and historical MGNREGA (Mahatma Gandhi National Rural Employment Guarantee Act) performance data for their district using visuals and text designed for low-literacy users.
+A production-grade, mobile-first web application that enables citizens to easily understand current and historical MGNREGA performance data for their district using visuals and text designed for low-literacy users.
 
 ## Features
 
@@ -15,204 +15,132 @@ A production-grade, mobile-first web application that enables citizens to easily
 ## Tech Stack
 
 - **Frontend**: Next.js 14 (React), Tailwind CSS
-- **Backend**: Node.js + Express
 - **Database**: MongoDB
 - **Cache**: Redis
-- **Worker**: Node.js cron jobs with BullMQ
-- **Containerization**: Docker + Docker Compose
-- **Testing**: Jest, Playwright
+- **Deployment**: Vercel (Serverless)
 
 ## Quick Start
 
 ### Prerequisites
 
 - Node.js 18+ and npm
-- Docker and Docker Compose
-- MongoDB (local or Atlas connection string)
-- Redis (local or cloud)
+- MongoDB (Atlas recommended)
+- Redis (Upstash recommended for serverless)
 
-### Installation
+### Local Development
 
 1. **Clone the repository**
    ```bash
    git clone <repo-url>
-   cd internship-project
+   cd internship-project/frontend
    ```
 
-2. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` and fill in:
-   - `MONGO_URI`: MongoDB connection string
-   - `REDIS_URL`: Redis connection URL
-   - `DATA_GOV_API_KEY`: Your data.gov.in API key
-   - `ADMIN_TOKEN`: Secret token for admin endpoints
-   - `STATE_CODE`: State code (e.g., "UP", "MH")
-   - `PORT`: Server port (default: 3000)
-
-3. **Install dependencies**
+2. **Install dependencies**
    ```bash
    npm install
-   cd frontend && npm install
-   cd ../backend && npm install
-   cd ../worker && npm install
    ```
 
-4. **Run with Docker Compose**
+3. **Set up environment variables**
+   Create a `.env.local` file:
+   ```env
+   MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/dbname
+   REDIS_URL=rediss://default:pass@redis.upstash.io:6379
+   DATA_GOV_API_KEY=your_api_key
+   ADMIN_TOKEN=your_secure_token
+   STATE_CODE=UP
+   NEXT_PUBLIC_API_URL=http://localhost:3000/api/v1
+   ```
+
+4. **Run development server**
    ```bash
-   docker-compose build
-   docker-compose up -d
+   npm run dev
    ```
 
-5. **Run initial data load**
-   ```bash
-   docker-compose exec worker node scripts/initial_load.js --state=<STATE_CODE> --months=36
-   ```
+5. **Open browser**
+   Navigate to `http://localhost:3000`
 
-6. **Access the application**
-   - Frontend: http://localhost:3001
-   - API: http://localhost:3000/api/v1
-   - Health: http://localhost:3000/api/v1/status
+## Deploy to Vercel
 
-## Development
+### Step 1: Connect Repository
 
-### Run locally (without Docker)
+1. Go to https://vercel.com/new
+2. Import your GitHub repository
+3. **IMPORTANT**: Set **Root Directory** to `frontend`
+4. Framework: Next.js (auto-detected)
 
-```bash
-# Terminal 1: Start MongoDB and Redis (if local)
-# Or use cloud services
+### Step 2: Set Environment Variables
 
-# Terminal 2: Start backend
-cd backend && npm run dev
-
-# Terminal 3: Start frontend
-cd frontend && npm run dev
-
-# Terminal 4: Start worker
-cd worker && npm run dev
-```
-
-### Run tests
-
-```bash
-npm test              # All tests
-npm run test:e2e      # E2E tests
-```
-
-## Deployment to Ubuntu VPS
-
-### Prerequisites on VPS
-
-- Ubuntu 20.04+
-- Docker and Docker Compose installed
-- Nginx installed
-- Domain name pointed to VPS IP (for HTTPS)
-
-### Deployment Steps
-
-1. **SSH into your VPS**
-   ```bash
-   ssh user@your-vps-ip
-   ```
-
-2. **Clone repository**
-   ```bash
-   git clone <repo-url>
-   cd internship-project
-   ```
-
-3. **Copy and configure environment**
-   ```bash
-   cp .env.example .env
-   nano .env  # Edit with production values
-   ```
-
-4. **Build and start containers**
-   ```bash
-   docker-compose build
-   docker-compose up -d
-   ```
-
-5. **Set up Nginx reverse proxy**
-   ```bash
-   sudo nano /etc/nginx/sites-available/mgnrega-viewer
-   ```
-   Add configuration (see `infrastructure/nginx.conf`)
-
-6. **Enable site and restart Nginx**
-   ```bash
-   sudo ln -s /etc/nginx/sites-available/mgnrega-viewer /etc/nginx/sites-enabled/
-   sudo nginx -t
-   sudo systemctl restart nginx
-   ```
-
-7. **Set up HTTPS with Certbot**
-   ```bash
-   sudo apt install certbot python3-certbot-nginx
-   sudo certbot --nginx -d yourdomain.com
-   ```
-
-8. **Run initial data load**
-   ```bash
-   docker-compose exec worker node scripts/initial_load.js --state=<STATE_CODE> --months=36
-   ```
-
-9. **Set up systemd service for worker (optional)**
-   ```bash
-   sudo cp infrastructure/mgnrega-worker.service /etc/systemd/system/
-   sudo systemctl enable mgnrega-worker
-   sudo systemctl start mgnrega-worker
-   ```
-
-10. **Verify deployment**
-    ```bash
-    curl http://localhost:3000/api/v1/status
-    ```
-
-### Monitoring
-
-- Health endpoint: `/api/v1/status`
-- Logs: `docker-compose logs -f`
-- Monitoring setup: See `infrastructure/monitoring/` for Prometheus/Grafana configs
-
-### Backups
-
-Set up nightly MongoDB backups:
-```bash
-# Add to crontab
-0 2 * * * docker-compose exec -T mongo mongodump --archive=/backup/mongo-$(date +\%Y\%m\%d).archive
-```
-
-## Project Structure
+In Vercel Dashboard → Settings → Environment Variables:
 
 ```
-internship-project/
-├── frontend/          # Next.js application
-├── backend/           # Express API server
-├── worker/            # Data ingestion worker
-├── infrastructure/    # Docker, Nginx, monitoring configs
-├── docker-compose.yml
-└── README.md
+MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/dbname
+REDIS_URL=rediss://default:pass@redis.upstash.io:6379
+DATA_GOV_API_KEY=your_api_key
+ADMIN_TOKEN=your_secure_token
+STATE_CODE=UP
+NEXT_PUBLIC_API_URL=https://your-project.vercel.app/api/v1
 ```
+
+### Step 3: Deploy
+
+Click **Deploy** and wait for the build to complete.
 
 ## API Endpoints
 
 - `GET /api/v1/districts?state=STATE_CODE` - List districts
-- `GET /api/v1/districts/:id/summary?month=YYYY-MM` - District summary
-- `GET /api/v1/districts/:id/metrics?from=YYYY-MM&to=YYYY-MM` - Time series
-- `GET /api/v1/compare?district1=ID&district2=ID&metric=expenditure` - Comparison
-- `POST /api/v1/admin/refresh?district=ID` - Force refresh (protected)
+- `GET /api/v1/districts/:id/summary` - District summary
+- `GET /api/v1/districts/:id/metrics` - District metrics time series
+- `GET /api/v1/compare?district1=ID&district2=ID` - Compare districts
 - `GET /api/v1/status` - Health check
 
-## Contributing
+## Project Structure
 
-1. Create a feature branch
-2. Make your changes
-3. Add tests
-4. Submit a pull request
+```
+frontend/
+├── src/
+│   ├── app/              # Next.js App Router
+│   │   ├── api/         # API routes
+│   │   ├── layout.jsx    # Root layout
+│   │   └── page.jsx     # Home page
+│   ├── components/      # React components
+│   ├── lib/             # Utilities, models, configs
+│   └── styles/          # CSS files
+├── package.json
+├── next.config.js
+└── vercel.json
+```
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `MONGO_URI` | MongoDB connection string | Yes |
+| `REDIS_URL` | Redis connection URL | Yes |
+| `DATA_GOV_API_KEY` | data.gov.in API key | Yes |
+| `ADMIN_TOKEN` | Secret token for admin endpoints | Yes |
+| `STATE_CODE` | State code (e.g., "UP") | Yes |
+| `NEXT_PUBLIC_API_URL` | Public API URL | Yes |
+
+## Troubleshooting
+
+### Build Fails
+
+- Check that Root Directory is set to `frontend` in Vercel settings
+- Verify all environment variables are set
+- Check build logs in Vercel Dashboard
+
+### 404 Errors
+
+- Ensure Root Directory is set to `frontend` in Vercel
+- Verify API routes are in `frontend/src/app/api/`
+- Check that routes export `export const dynamic = 'force-dynamic'`
+
+### Database Connection Issues
+
+- Verify MongoDB Atlas IP whitelist includes Vercel IPs (or `0.0.0.0/0`)
+- Check Redis URL format (should use `rediss://` for TLS)
+- Ensure connection strings are correct in environment variables
 
 ## License
 
-MIT
-
+MIT License - see LICENSE file for details
