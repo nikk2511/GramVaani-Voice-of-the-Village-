@@ -11,6 +11,7 @@ export default function DistrictSelector({ onSelect, stateCode }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -47,6 +48,17 @@ export default function DistrictSelector({ onSelect, stateCode }) {
       setFilteredDistricts(data.districts || []);
     } catch (error) {
       console.error('Error loading districts:', error);
+      // Show user-friendly error message
+      if (error.response) {
+        // Server responded with error status
+        console.error('Server error:', error.response.status, error.response.data);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error('No response from server. Check if API routes are deployed.');
+      } else {
+        // Something else happened
+        console.error('Error:', error.message);
+      }
     } finally {
       setLoading(false);
     }
