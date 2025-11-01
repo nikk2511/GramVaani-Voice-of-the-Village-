@@ -3,6 +3,8 @@ import connectDB from '@/lib/db';
 import getDistrictModel from '@/lib/models/District';
 import getDistrictMetricModel from '@/lib/models/DistrictMetric';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request, { params }) {
   try {
     await connectDB();
